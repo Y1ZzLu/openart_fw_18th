@@ -1,0 +1,3 @@
+[submodule "NXP-MCUBootUtility"]
+	path = NXP-MCUBootUtility
+	url = git@github.com:JayHeng/NXP-MCUBootUtility.git
