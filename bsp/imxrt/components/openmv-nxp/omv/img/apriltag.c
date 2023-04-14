@@ -12975,6 +12975,57 @@ static inline bool Find_Rect(image_u8_t *Img, uint32_t thresh, struct quad *Rect
     fb_free();
     return false;
 }
+// static inline bool RGB_TO_HSV(uint16_t pix)
+// {
+//     uint16_t R = COLOR_RGB565_TO_R5(pix), G = COLOR_RGB565_TO_G6(pix), B = COLOR_RGB565_TO_B5(pix);
+//     // mp_printf(&mp_plat_print, "R:%d,G:%d,B:%d\n", R, G, B);
+//     float r = (float)R / 31.0, g = (float)G / 63.0, b = (float)B / 31.0;
+//     // mp_printf(&mp_plat_print, "r:%.2f,g:%.2f,b:%.2f\n", r, g, b);
+//     float V = MAX(MAX(r, g), b), S, H;
+//     float D = V - MIN(MIN(r, g), b);
+//     if (V != 0)
+//     {
+//         S = D / V;
+//     }
+//     else
+//     {
+//         S = 0;
+//     }
+//     if (D == 0)
+//     {
+//         H = 0;
+//     }
+//     else if (V == r)
+//     {
+//         H = 60 * (g - b) / D;
+//     }
+//     else if (V == g)
+//     {
+//         H = 120 + 60 * (b - r) / D;
+//     }
+//     else
+//     {
+//         H = 240 + 60 * (r - g) / D;
+//     }
+//     if (H < 0)
+//         H += 360;
+//     H /= 2, S *= 255, V *= 255;
+//     // mp_printf(&mp_plat_print, "H:%.2f,S:%.2f,V:%.2f\n", H, S, V);
+//     return true;
+// }
+#define WhiteTh 150
+static inline uint8_t transform_pix(uint16_t pix)
+{
+    uint8_t R = COLOR_RGB565_TO_R8(pix), G = COLOR_RGB565_TO_G8(pix), B = COLOR_RGB565_TO_B8(pix);
+    if (R > WhiteTh && G > WhiteTh && B > WhiteTh)
+    {
+        return 0;
+    }
+    else
+    {
+        return B;
+    }
+}
 void mylib_find_rects(list_t *out, image_t *ptr, rectangle_t *roi, int32_t threshold, uint32_t quality)
 {
     uint8_t *grayscale_image = fb_alloc(roi->w * roi->h, FB_ALLOC_NO_HINT);
@@ -12988,7 +13039,7 @@ void mylib_find_rects(list_t *out, image_t *ptr, rectangle_t *roi, int32_t thres
         uint16_t *row_ptr = IMAGE_COMPUTE_RGB565_PIXEL_ROW_PTR(ptr, y);
         for (int x = roi->x, xx = roi->x + roi->w; x < xx; x++)
         {
-            *(grayscale_image++) = COLOR_RGB565_TO_GRAYSCALE(IMAGE_GET_RGB565_PIXEL_FAST(row_ptr, x));
+            *(grayscale_image++) = transform_pix(IMAGE_GET_RGB565_PIXEL_FAST(row_ptr, x));
         }
     }
     struct quad Rect;
