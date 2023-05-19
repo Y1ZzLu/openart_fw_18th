@@ -1,0 +1,5 @@
+{
+    "ewp": "${workspaceFolder}\\bsp\\imxrt\\libraries\\MIMXRT1170\\CMSIS\\DSP_Lib\\Projects\\IAR\\arm_cortexM_math.ewp",
+    "configuration": "cortexM0l",
+    "toolchain": "d:\\IAR-v8.32"
+}

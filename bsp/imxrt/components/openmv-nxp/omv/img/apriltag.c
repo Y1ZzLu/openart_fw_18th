@@ -12558,8 +12558,8 @@ static inline float point_ptr_dist(const float a[2], const float b[2])
 
 #define IMG_W 320
 #define IMG_H 240
-#define queuesize 1000
-#define pntsize 5000
+#define queuesize 3000
+#define pntsize 10000
 static inline point_t Sub(point_t a, point_t b) // a-b
 {
     point_t t = {a.x - b.x, a.y - b.y};
@@ -12739,7 +12739,7 @@ static inline bool is_rect(point_t *P0, point_t *P1, point_t *P2, point_t *P3)
     float dist4 = point_distance(P3, P0);
     double avg = (dist1 + dist2 + dist3 + dist4) / 4;
     // mp_printf(&mp_plat_print, "avg %.3f\n", avg);
-    if (avg <= 60 || avg >= 150)
+    if (avg <= 60 || avg >= 200)
     {
         return false;
     }
@@ -12748,14 +12748,14 @@ static inline bool is_rect(point_t *P0, point_t *P1, point_t *P2, point_t *P3)
     float angle3 = fabs(((P3->x - P2->x) * (P1->x - P2->x) + (P3->y - P2->y) * (P1->y - P2->y)) / (dist3 * dist2));
     float angle4 = fabs(((P0->x - P3->x) * (P2->x - P3->x) + (P0->y - P3->y) * (P2->y - P3->y)) / (dist4 * dist3));
     // mp_printf(&mp_plat_print, "angle %.3f\n", angle1 + angle2 + angle3 + angle4);
-    if (angle1 + angle2 + angle3 + angle4 > 0.3)
+    if (angle1 + angle2 + angle3 + angle4 > 0.8)
     {
         return false;
     }
 
     double sigma2 = (double)(dist1 - avg) * (dist1 - avg) + (double)(dist2 - avg) * (dist2 - avg) + (double)(dist3 - avg) * (dist3 - avg) + (double)(dist4 - avg) * (dist4 - avg);
     // mp_printf(&mp_plat_print, "sigma2 %.3f\n", sigma2);
-    if (sigma2 / (avg * avg) < 0.1)
+    if (sigma2 / (avg * avg) < 0.2)
     {
         return true;
     }
@@ -12792,14 +12792,14 @@ static inline bool andrew(point_t *P, uint16_t Psize, struct quad *cor)
             top--;
         stk[++top] = i;
     }
-    if (top < 5 || top > 50)
+    if (top < 5 || top > 100)
     {
         fb_free();
         fb_free();
         return false;
     }
     // mp_printf(&mp_plat_print, "top = %d\n", top);
-    point_t *pts = fb_alloc(sizeof(point_t) * 50, FB_ALLOC_NO_HINT);
+    point_t *pts = fb_alloc(sizeof(point_t) * 100, FB_ALLOC_NO_HINT);
     for (uint8_t i = 1; i <= top; i++)
     {
         pts[i - 1].x = P[stk[i]].x;
@@ -12824,8 +12824,8 @@ static inline bool andrew(point_t *P, uint16_t Psize, struct quad *cor)
     {
         mystack[stack_size++] = idx1;
         mystack[stack_size++] = idx2;
-        DP(pts, idx1, idx2, top, mystack, &stack_size, 15);
-        DP(pts, idx2, idx1, top, mystack, &stack_size, 15);
+        DP(pts, idx1, idx2, top, mystack, &stack_size, 35);
+        DP(pts, idx2, idx1, top, mystack, &stack_size, 35);
         // mp_printf(&mp_plat_print, "stacksize = %d\n", stack_size);
         my_qsort(mystack, 0, stack_size - 1);
         if (stack_size == 4)
@@ -12917,7 +12917,7 @@ static inline bool BFS_rect(image_u8_t *im, uint16_t x, uint16_t y, uint32_t thr
     }
 
     uint16_t dx = maxx - minx, dy = maxy - miny;
-    if (dx < 60 || dy < 60 || dx > 200 || dy > 200)
+    if (dx < 60 || dy < 60 || dx > 2800 || dy > 200)
     {
         fb_free();
         return false;
@@ -12975,11 +12975,10 @@ static inline bool Find_Rect(image_u8_t *Img, uint32_t thresh, struct quad *Rect
     fb_free();
     return false;
 }
-#define WhiteTh 160
 static inline uint8_t transform_pix(uint16_t pix)
 {
     uint8_t R = COLOR_RGB565_TO_R8(pix), G = COLOR_RGB565_TO_G8(pix), B = COLOR_RGB565_TO_B8(pix);
-    if (R > WhiteTh && G > WhiteTh && B > WhiteTh)
+    if (R > 120 && G > 160 && B > 230)
     {
         return 0;
     }
