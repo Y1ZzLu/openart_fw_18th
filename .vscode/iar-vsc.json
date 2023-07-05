@@ -1,5 +1,21 @@
 {
-    "ewp": "${workspaceFolder}\\bsp\\imxrt\\libraries\\MIMXRT1170\\CMSIS\\DSP_Lib\\Projects\\IAR\\arm_cortexM_math.ewp",
-    "configuration": "cortexM0l",
-    "toolchain": "d:\\IAR-v8.32"
+  "ewp": "${workspaceFolder}\\bsp\\imxrt\\libraries\\MIMXRT1170\\CMSIS\\DSP_Lib\\Projects\\IAR\\arm_cortexM_math.ewp",
+  "configuration": "cortexM0l",
+  "toolchain": "d:\\IAR-v8.32",
+  "workspace": {
+    "path": "${workspaceFolder}\\bsp\\imxrt\\libraries\\MIMXRT1170\\CMSIS\\DSP_Lib\\Projects\\IAR\\arm_cortexM_math.eww"
+  },
+  "workspaces": {
+    "${workspaceFolder}\\bsp\\imxrt\\libraries\\MIMXRT1170\\CMSIS\\DSP_Lib\\Projects\\IAR\\arm_cortexM_math.eww": {
+      "configs": {
+        "${workspaceFolder}\\bsp\\imxrt\\libraries\\MIMXRT1170\\CMSIS\\DSP_Lib\\Projects\\IAR\\arm_cortexM_math.ewp": "cortexM0l"
+      },
+      "selected": {
+        "path": "${workspaceFolder}\\bsp\\imxrt\\libraries\\MIMXRT1170\\CMSIS\\DSP_Lib\\Projects\\IAR\\arm_cortexM_math.ewp"
+      }
+    }
+  },
+  "workbench": {
+    "path": "d:\\IAR-v8.32"
+  }
 }

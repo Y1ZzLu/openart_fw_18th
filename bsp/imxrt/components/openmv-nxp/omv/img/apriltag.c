@@ -12943,7 +12943,7 @@ static inline bool Find_Rect(image_u8_t *Img, uint32_t thresh, struct quad *Rect
     uint16_t *queueX = fb_alloc(queuesize * sizeof(uint16_t), FB_ALLOC_NO_HINT);
     uint16_t *queueY = fb_alloc(queuesize * sizeof(uint16_t), FB_ALLOC_NO_HINT);
     memset(st, 0, IMG_H * IMG_W * sizeof(uint8_t));
-    for (int degree = 0; degree < 360; degree += 20)
+    for (int degree = 0; degree < 360; degree += 30)
     {
         float x = IMG_W / 2, y = IMG_H / 2;
         float rad = degree * PI / 180;
@@ -12987,7 +12987,86 @@ static inline uint8_t transform_pix(uint16_t pix)
         return B;
     }
 }
-void mylib_find_rects(list_t *out, image_t *ptr, rectangle_t *roi, int32_t threshold)
+// static inline void get_hsv(uint16_t pix, uint8_t *h, uint8_t *s, uint8_t *v)
+// {
+//     int16_t R = COLOR_RGB565_TO_R8(pix), G = COLOR_RGB565_TO_G8(pix), B = COLOR_RGB565_TO_B8(pix);
+//     int16_t V = MAX(MAX(R, G), B), Cmin = MIN(MIN(R, G), B);
+//     int16_t D = V - Cmin, H;
+//     if (D == 0)
+//         H = 0;
+//     else if (V == R)
+//     {
+//         H = 60 + (60 * (G - B)) / D;
+//     }
+//     else if (V == G)
+//     {
+//         H = 120 + (60 * (B - R)) / D;
+//     }
+//     else
+//     {
+//         H = 240 + (60 * (R - G)) / D;
+//     }
+//     if (H < 0)
+//         H += 360;
+//     *h = H / 2;
+//     if (V == 0)
+//         *s = 0;
+//     else
+//         *s = D * 255 / V;
+//     *v = V;
+// }
+static inline void get_hsv(uint16_t pix, uint8_t *h, uint8_t *s, uint8_t *v)
+{
+    uint8_t R = COLOR_RGB565_TO_R8(pix), G = COLOR_RGB565_TO_G8(pix), B = COLOR_RGB565_TO_B8(pix);
+    uint8_t Max = MAX(MAX(B, R), G);
+    uint8_t Min = MIN(MIN(B, R), G);
+    if (Max == Min)
+        *h = 0;
+    else if (Max == R && G >= B)
+    {
+        *h = 30 * (G - B) / (Max - Min);
+    }
+    else if (Max == R && G < B)
+    {
+        *h = (60 * ((int16_t)G - B) / (Max - Min) + 360) / 2;
+    }
+    else if (Max == G)
+    {
+        *h = (60 * ((int16_t)B - R) / (Max - Min) + 120) / 2;
+    }
+    else if (Max == B)
+    {
+        *h = (60 * ((int16_t)R - G) / (Max - Min) + 240) / 2;
+    }
+
+    if (Max == 0)
+        *s = 0;
+    else
+        *s = (uint16_t)(Max - Min) * 255 / Max;
+    *v = Max;
+}
+static inline bool check_yellow(image_t *ptr, point_t a, point_t b, int32_t quality)
+{
+    float dx = a.x - b.x, dy = a.y - b.y;
+    float dr = sqrt(dx * dx + dy * dy);
+    dx /= dr, dy /= dr, dr /= 12;
+    float x = b.x, y = b.y;
+    uint16_t cnt = 0, yellow_cnt = 0;
+    uint8_t h, s, v;
+    while (cnt++ < dr)
+    {
+        y += dy, x += dx;
+        uint16_t pix = IMAGE_GET_RGB565_PIXEL_FAST(IMAGE_COMPUTE_RGB565_PIXEL_ROW_PTR(ptr, roundf(y)), roundf(x));
+        get_hsv(pix, &h, &s, &v);
+        if (h >= 25 && h <= 35 && s > quality)
+            yellow_cnt++;
+    }
+    if ((float)yellow_cnt / cnt > 0.5)
+        return true;
+    else
+        return false;
+}
+void mylib_find_rects(list_t *out, image_t *ptr, rectangle_t *roi, int32_t threshold, int32_t quality)
 {
     uint8_t *grayscale_image = fb_alloc(roi->w * roi->h, FB_ALLOC_NO_HINT);
     image_u8_t im;
@@ -12995,12 +13074,22 @@ void mylib_find_rects(list_t *out, image_t *ptr, rectangle_t *roi, int32_t thres
     im.height = roi->h;
     im.stride = roi->w;
     im.buf = grayscale_image;
+    uint8_t h, s, v;
     for (int y = roi->y, yy = roi->y + roi->h; y < yy; y++)
     {
         uint16_t *row_ptr = IMAGE_COMPUTE_RGB565_PIXEL_ROW_PTR(ptr, y);
         for (int x = roi->x, xx = roi->x + roi->w; x < xx; x++)
         {
-            *(grayscale_image++) = transform_pix(IMAGE_GET_RGB565_PIXEL_FAST(row_ptr, x));
+            get_hsv(IMAGE_GET_RGB565_PIXEL_FAST(row_ptr, x), &h, &s, &v);
+            if (h >= 23 && h <= 38)
+                *(grayscale_image++) = 0;
+            else if (s < quality || v < quality)
+                *(grayscale_image++) = 0;
+            else if (h >= 100 && h <= 124)
+                *(grayscale_image++) = 255;
+            else
+                *(grayscale_image++) = h;
+            // *(grayscale_image++) = transform_pix(IMAGE_GET_RGB565_PIXEL_FAST(row_ptr, x));
         }
     }
     struct quad Rect;
@@ -13032,6 +13121,8 @@ void mylib_find_rects(list_t *out, image_t *ptr, rectangle_t *roi, int32_t thres
         lnk_data.corners[1].y = Rect.p[(idx + 2) % 4][1];
         lnk_data.corners[0].x = Rect.p[(idx + 1) % 4][0];
         lnk_data.corners[0].y = Rect.p[(idx + 1) % 4][1];
+        // if (check_yellow(ptr, lnk_data.corners[3], lnk_data.corners[1], quality) && check_yellow(ptr, lnk_data.corners[1], lnk_data.corners[3], quality) && check_yellow(ptr, lnk_data.corners[2], lnk_data.corners[0], quality) && check_yellow(ptr, lnk_data.corners[0], lnk_data.corners[2], quality))
+        //     mp_printf(&mp_plat_print, "kuang!\n");
         rectangle_init(&(lnk_data.rect), x, y, w, h);
         list_push_back(out, &lnk_data);
     }
