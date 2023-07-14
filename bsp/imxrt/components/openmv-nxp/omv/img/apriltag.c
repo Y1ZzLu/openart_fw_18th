@@ -12917,7 +12917,7 @@ static inline bool BFS_rect(image_u8_t *im, uint16_t x, uint16_t y, uint32_t thr
     }
 
     uint16_t dx = maxx - minx, dy = maxy - miny;
-    if (dx < 60 || dy < 60 || dx > 2800 || dy > 200)
+    if (dx < 80 || dy < 80 || dx > 280 || dy > 200)
     {
         fb_free();
         return false;
@@ -13122,7 +13122,7 @@ void mylib_find_rects(list_t *out, image_t *ptr, rectangle_t *roi, int32_t thres
         lnk_data.corners[0].x = Rect.p[(idx + 1) % 4][0];
         lnk_data.corners[0].y = Rect.p[(idx + 1) % 4][1];
         // if (check_yellow(ptr, lnk_data.corners[3], lnk_data.corners[1], quality) && check_yellow(ptr, lnk_data.corners[1], lnk_data.corners[3], quality) && check_yellow(ptr, lnk_data.corners[2], lnk_data.corners[0], quality) && check_yellow(ptr, lnk_data.corners[0], lnk_data.corners[2], quality))
-        //     mp_printf(&mp_plat_print, "kuang!\n");
+            // mp_printf(&mp_plat_print, "kuang!\n");
         rectangle_init(&(lnk_data.rect), x, y, w, h);
         list_push_back(out, &lnk_data);
     }
