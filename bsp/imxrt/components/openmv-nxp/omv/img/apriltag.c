@@ -12660,7 +12660,7 @@ static inline void my_qsort(uint8_t *arr, uint8_t l, uint8_t r)
 //             return;
 //         for (uint8_t i = l + 1; i < r; i++)
 //         {
-//             // 求距离函数出现问题，等待重新调试
+//             // 求距离向量函数出现问题，等待重新调试
 //             dist = fabs((float)(P[stk[l]].x - P[stk[r]].x) * (float)(P[stk[i]].y - P[stk[r]].y) - (float)(P[stk[l]].y - P[stk[r]].y) * (float)(P[stk[i]].x - P[stk[r]].x)) / Basedist;
 //             if (dist > maxdist)
 //             {
@@ -12987,34 +12987,6 @@ static inline uint8_t transform_pix(uint16_t pix)
         return B;
     }
 }
-// static inline void get_hsv(uint16_t pix, uint8_t *h, uint8_t *s, uint8_t *v)
-// {
-//     int16_t R = COLOR_RGB565_TO_R8(pix), G = COLOR_RGB565_TO_G8(pix), B = COLOR_RGB565_TO_B8(pix);
-//     int16_t V = MAX(MAX(R, G), B), Cmin = MIN(MIN(R, G), B);
-//     int16_t D = V - Cmin, H;
-//     if (D == 0)
-//         H = 0;
-//     else if (V == R)
-//     {
-//         H = 60 + (60 * (G - B)) / D;
-//     }
-//     else if (V == G)
-//     {
-//         H = 120 + (60 * (B - R)) / D;
-//     }
-//     else
-//     {
-//         H = 240 + (60 * (R - G)) / D;
-//     }
-//     if (H < 0)
-//         H += 360;
-//     *h = H / 2;
-//     if (V == 0)
-//         *s = 0;
-//     else
-//         *s = D * 255 / V;
-//     *v = V;
-// }
 static inline void get_hsv(uint16_t pix, uint8_t *h, uint8_t *s, uint8_t *v)
 {
     uint8_t R = COLOR_RGB565_TO_R8(pix), G = COLOR_RGB565_TO_G8(pix), B = COLOR_RGB565_TO_B8(pix);
