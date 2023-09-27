@@ -14,7 +14,7 @@
 ### ** _固件使用注意事项：_ ** 
 
 
-1. 固件的.axf文件在逐飞群文件中已经上传，烧录即可直接使用（需在蓝色背景下使用）
+1. 固件的.axf文件在逐飞群文件中已经上传，烧录即可直接使用（需在蓝色背景下使用）[烧录工具](https://github.com/JayHeng/NXP-MCUBootUtility)
 
 2. 同时openart国赛使用代码也已经上传在逐飞智能视觉群中，可以直接下载，该开源链接主要为二次开发参考使用
 
@@ -54,4 +54,4 @@ fb_alloc 和 fb_free 函数可以操作内存池
 
 
 **如需重新二次开发请移步参考链接** 
-[NXPmicro/OpenART](https://github.com/NXPmicro/OpenART.git)  
+[NXPmicro/OpenART](https://github.com/NXPmicro/OpenART.git) 
