@@ -13055,7 +13055,7 @@ void mylib_find_rects(list_t *out, image_t *ptr, rectangle_t *roi, int32_t thres
             get_hsv(IMAGE_GET_RGB565_PIXEL_FAST(row_ptr, x), &h, &s, &v);
             if (h >= 23 && h <= 38)
                 *(grayscale_image++) = 0;
-            else if (s < quality || v < quality)
+            else if (s < quality/1000 || v < quality%1000)
                 *(grayscale_image++) = 0;
             else if (h >= 100 && h <= 124)
                 *(grayscale_image++) = 255;
